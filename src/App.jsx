@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import { data } from "./data/data"
@@ -10,11 +10,11 @@ function App() {
     const [currentNoteId, setCurrentNoteId] = useState(
         (notes[0] && notes[0].id) || ""
     )
-
-    function setLocalStorage(notes) {
-        localStorage.setItem('notes', JSON.stringify(notes))
-    }
     
+    useEffect(()=>{
+        localStorage.setItem('notes', JSON.stringify(notes))
+    },[notes])
+
     function createNewNote() {
         const newNote = {
             id: nanoid(),
@@ -30,7 +30,6 @@ function App() {
                 ? { ...oldNote, body: text }
                 : oldNote
         }))
-        setLocalStorage(notes)
     }
     
     function findCurrentNote() {
