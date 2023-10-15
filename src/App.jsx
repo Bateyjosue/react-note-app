@@ -50,7 +50,10 @@ function App() {
         })
     }
 
-    
+    async function deleteNote( noteId) {
+        const docRef = doc(db, 'notes', noteId)
+        await deleteDoc(docRef)
+    }
     
     return (
         <main>
