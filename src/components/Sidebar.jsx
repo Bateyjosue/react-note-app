@@ -13,7 +13,7 @@ export default function Sidebar(props) {
                 <h4 className="text-snippet">{note.body.split('\n')[0]}</h4>
                 <button 
                     className="material-symbols-outlined"
-                    onClick={(event) => props.deleteNote(event, note.id)}
+                    onClick={() => props.deleteNote(note.id)}
                     >delete_forever</button>
             </div>
         </div>
