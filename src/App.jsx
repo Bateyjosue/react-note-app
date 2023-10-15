@@ -27,11 +27,20 @@ function App() {
     }
     
     function updateNote(text) {
-        setNotes(oldNotes => oldNotes.map(oldNote => {
-            return oldNote.id === currentNoteId
-                ? { ...oldNote, body: text }
-                : oldNote
-        }))
+        setNotes(oldNotes => {
+            const newNote = []
+            oldNotes.forEach(el => {
+                if(el.id === currentNoteId){
+                    newNote.unshift({
+                        ...el,
+                        body: text
+                    })
+                }else {
+                    newNote.push(el)
+                }
+            })
+            return newNote
+        })
     }
     
     function findCurrentNote() {
