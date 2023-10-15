@@ -2,12 +2,11 @@ import { useEffect, useState } from "react"
 import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import Split from "react-split"
-import {nanoid} from "nanoid"
+import { addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore"
+import { db, notesCollection } from "../firebase"
 
 function App() {
-    const [notes, setNotes] = useState(
-        ()=> JSON.parse(localStorage.getItem('notes')) || []
-    )
+    const [notes, setNotes] = useState([])
     const [currentNoteId, setCurrentNoteId] = useState(
         (notes[0]?.id) || ""
     )
@@ -15,16 +14,23 @@ function App() {
     const currentNote = notes.find(note => note.id === currentNoteId) || notes[0]
     
     useEffect(()=>{
-        localStorage.setItem('notes', JSON.stringify(notes))
-    },[notes])
+        const unsubscribe = onSnapshot(notesCollection, (snapshot)=> {
+            const noteArray = snapshot.docs.map(doc => ({
+                ...doc.data(),
+                id: doc.id,
+            }))
+            setNotes(noteArray)
+        })
+        return unsubscribe
+    },[])
 
-    function createNewNote() {
+    async function createNewNote() {
         const newNote = {
-            id: nanoid(),
             body: "# Type your markdown note's title here"
         }
-        setNotes(prevNotes => [newNote, ...prevNotes])
-        setCurrentNoteId(newNote.id)
+        
+        const newNoteRef = await addDoc(notesCollection, newNote)
+        setCurrentNoteId(newNoteRef.id)
     }
     
     function updateNote(text) {
@@ -44,13 +50,7 @@ function App() {
         })
     }
 
-    function deleteNote(event, noteId) {
-        event.stopPropagation();
-        setNotes((prevNote)=> {
-            return prevNote.filter(note => note.id !== noteId)
-        })
-
-    }
+    
     
     return (
         <main>
