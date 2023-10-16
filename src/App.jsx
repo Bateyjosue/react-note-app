@@ -11,6 +11,7 @@ function App() {
     const [currentNoteId, setCurrentNoteId] = useState("")
 
     const currentNote = notes.find(note => note.id === currentNoteId) || notes[0]
+    const sortedNotes = notes.sort((curr, next) => next.updatedAt - curr.updatedAt)
     
     useEffect(()=>{
         const unsubscribe = onSnapshot(notesCollection, (snapshot)=> {
@@ -31,7 +32,9 @@ function App() {
 
     async function createNewNote() {
         const newNote = {
-            body: "# Type your markdown note's title here"
+            body: "# Type your markdown note's title here",
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         }
         
         const newNoteRef = await addDoc(notesCollection, newNote)
@@ -40,7 +43,11 @@ function App() {
     
     async function updateNote(text) {
         const docRef = doc(db, 'notes', currentNoteId)
-        await setDoc(docRef, {body: text}, {merge: true})
+        await setDoc(
+            docRef,
+            {body: text, updatedAt: Date.now()},
+            {merge: true}
+        )
     }
 
     async function deleteNote( noteId) {
@@ -59,7 +66,7 @@ function App() {
                 className="split"
             >
                 <Sidebar
-                    notes={notes}
+                    notes={sortedNotes}
                     currentNote={currentNote}
                     setCurrentNoteId={setCurrentNoteId}
                     newNote={createNewNote}
