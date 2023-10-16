@@ -73,8 +73,6 @@ function App() {
                     deleteNote={deleteNote}
                 />
                 {
-                    currentNoteId && 
-                    notes.length > 0 &&
                     <Editor 
                         currentNote={currentNote} 
                         updateNote={updateNote} 
