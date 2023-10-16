@@ -1,15 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import Split from "react-split"
-import { addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore"
+import { addDoc, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore"
 import { db, notesCollection } from "../firebase"
 
 function App() {
     const [notes, setNotes] = useState([])
-    const [currentNoteId, setCurrentNoteId] = useState(
-        (notes[0]?.id) || ""
-    )
+    const [currentNoteId, setCurrentNoteId] = useState("")
 
     const currentNote = notes.find(note => note.id === currentNoteId) || notes[0]
     
@@ -24,6 +23,12 @@ function App() {
         return unsubscribe
     },[])
 
+    useEffect(()=>{
+        if(!currentNoteId){
+            setCurrentNoteId(notes[0]?.id)
+        }
+    }, [notes])
+
     async function createNewNote() {
         const newNote = {
             body: "# Type your markdown note's title here"
@@ -33,21 +38,9 @@ function App() {
         setCurrentNoteId(newNoteRef.id)
     }
     
-    function updateNote(text) {
-        setNotes(oldNotes => {
-            const newNote = []
-            oldNotes.forEach(el => {
-                if(el.id === currentNoteId){
-                    newNote.unshift({
-                        ...el,
-                        body: text
-                    })
-                }else {
-                    newNote.push(el)
-                }
-            })
-            return newNote
-        })
+    async function updateNote(text) {
+        const docRef = doc(db, 'notes', currentNoteId)
+        await setDoc(docRef, {body: text}, {merge: true})
     }
 
     async function deleteNote( noteId) {
